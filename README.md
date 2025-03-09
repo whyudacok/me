@@ -1,30 +1,28 @@
-# Hallo! i'm wahyuu. 👋
+# Hallo! I'm Wahyu 👋  
 
 <p align="center">
-  <img src="https://c.tenor.com/DnnklrEUKLIAAAAd/tenor.gif" width="300">
-</p>
+  <img src="https://c.tenor.com/DnnklrEUKLIAAAAd/tenor.gif" width="250">
+</p>  
 
-## Tentang Gweh 
-- 💻 Web developer 
+## Tentang Aku  
+- 💻 Web Developer  
 
-## Tech Stack
-- 🔧 PHP (bahasa sejuta umat)
-- 🌐 HTML (tulang punggung web)
-- 🎨 Tailwind CSS (biar styling gak pusing)
-- ⚡ Remix.js (framework kece)
+## Tech Stack  
+- 🔧 **PHP**
+- 🎨 **Tailwind CSS** 
+- ⚡ **Remix.js**  
 
-## GitHub Stats
+## GitHub Stats  
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=whyudacok&show_icons=true&theme=tokyonight" alt="GitHub Stats" />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=whyudacok&layout=compact&theme=tokyonight" alt="Top Languages" />
-</p>
+  <img src="https://github-readme-stats.vercel.app/api?username=whyudacok&show_icons=true&theme=tokyonight" alt="GitHub Stats" width="450"/>
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=whyudacok&layout=compact&theme=tokyonight" alt="Top Languages" width="350"/>
+</p>  
 
-## Support
-Kalau projectku bermanfaat buat kamu, boleh banget support aku:
-- ☕ [Traktir Eskrim](https://trakteer.id/slynnn)
+## Support  
+Jika projectku bermanfaat, kamu bisa [Traktir Es Krim](https://trakteer.id/slynnn)  
 
 <p align="center">
-  <img src="https://c.tenor.com/3a3XcQUCFPkAAAAC/tenor.gif" width="200">
+  <img src="https://c.tenor.com/3a3XcQUCFPkAAAAC/tenor.gif" width="180">
   <br>
-  <em>Arigatou gozaimasu!</em>
-</p>
+  <em>Arigatou gozaimasu!</em>  
+</p>  
