@@ -1,7 +1,7 @@
 # Hallo! I'm Wahyu 👋  
 
 <p align="center">
-  <img src="https://c.tenor.com/DnnklrEUKLIAAAAd/tenor.gif" width="250">
+  <img src="https://c.tenor.com/I4agzayzaXIAAAAC/tenor.gif" width="250">
 </p>  
 
 ## Tentang Aku  
@@ -22,7 +22,7 @@
 Jika projectku bermanfaat, kamu bisa [Traktir Es Krim](https://trakteer.id/slynnn)  
 
 <p align="center">
-  <img src="https://c.tenor.com/3a3XcQUCFPkAAAAC/tenor.gif" width="180">
+  <img src="https://media.tenor.com/W3wUoMhulrwAAAA1/lycoris-recoil-lycoris.webp" width="180">
   <br>
   <em>Arigatou gozaimasu!</em>  
 </p>  
