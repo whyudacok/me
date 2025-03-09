@@ -27,7 +27,7 @@
 <p align="center">
   <img src="https://github-readme-stats.vercel.app/api?username=whyudacok&show_icons=true&theme=tokyonight" alt="GitHub Stats" width="450"/>
   <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=whyudacok&layout=compact&theme=tokyonight" alt="Top Languages" width="350"/>
-</p>  
+  
 <p align="center">
   <strong>👀 Visitor Count</strong>  
   <br>
