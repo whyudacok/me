@@ -4,16 +4,10 @@
   <img src="https://c.tenor.com/I4agzayzaXIAAAAC/tenor.gif" width="200">
 </p>  
 
-<p align="center">
-  <strong>👀 Visitor Count</strong>  
-  <br>
-  <img src="https://count.getloli.com/get/@whyudacok?theme=rule34" alt="Visitor Count" width="120">
-</p>
-
 ## 📌 About Me  
 <div>
   <div align="center">
-    <img src="https://media.tenor.com/bTtyhzU_pSgAAAAC/lycoris-recoil.gif" align="right" width="200">
+    <img src="https://c.tenor.com/MoFUWZTKgnUAAAAC/tenor.gif" align="right" width="100">
   </div>
   <ul>
     <li><b>Name:</b> Wahyuu</li>
@@ -34,6 +28,11 @@
   <img src="https://github-readme-stats.vercel.app/api?username=whyudacok&show_icons=true&theme=tokyonight" alt="GitHub Stats" width="450"/>
   <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=whyudacok&layout=compact&theme=tokyonight" alt="Top Languages" width="350"/>
 </p>  
+<p align="center">
+  <strong>👀 Visitor Count</strong>  
+  <br>
+  <img src="https://count.getloli.com/get/@whyudacok?theme=rule34" alt="Visitor Count" width="120">
+</p>
 
 ## ☕ Support  
 <p align="center">
