@@ -1,7 +1,7 @@
-# Hallo! i'm whyudacok 👋
+# Hallo! i'm wahyuu. 👋
 
 <p align="center">
-  <img src="https://c.tenor.com/DBqjevyA2o4AAAAd/bongo-cat-codes.gif" width="300">
+  <img src="https://c.tenor.com/DnnklrEUKLIAAAAd/tenor.gif" width="300">
 </p>
 
 ## Tentang Gweh 
@@ -24,7 +24,7 @@ Kalau projectku bermanfaat buat kamu, boleh banget support aku:
 - ☕ [Traktir Eskrim](https://trakteer.id/slynnn)
 
 <p align="center">
-  <img src="https://c.tenor.com/YjZhyYREI9EAAAAC/tenor.gif" width="200">
+  <img src="https://c.tenor.com/3a3XcQUCFPkAAAAC/tenor.gif" width="200">
   <br>
   <em>Arigatou gozaimasu!</em>
 </p>
