@@ -36,9 +36,9 @@
 
 ## ☕ Support  
 <p align="center">
-  If you find my projects useful, consider supporting me:  
+  Jika projectku bermanfaat, kamu bisa  
   <br>
-  <a href="https://trakteer.id/slynnn"><strong>Buy Me Ice Cream</strong></a>  
+  <a href="https://trakteer.id/slynnn"><strong>Traktir Es Krim</strong></a>  
 </p>
 
 <p align="center">
