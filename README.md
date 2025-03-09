@@ -7,7 +7,7 @@
 ## 📌 About Me  
 <div>
   <div align="center">
-    <img src="https://c.tenor.com/MoFUWZTKgnUAAAAC/tenor.gif" align="right" width="100">
+    <img src="https://c.tenor.com/r9TC5OqhdQYAAAAC/tenor.gif" align="right" width="100">
   </div>
   <ul>
     <li><b>Name:</b> Wahyuu</li>
