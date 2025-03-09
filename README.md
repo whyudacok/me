@@ -24,7 +24,7 @@ Kalau projectku bermanfaat buat kamu, boleh banget support aku:
 - ☕ [Traktir Eskrim](https://trakteer.id/slynnn)
 
 <p align="center">
-  <img src="https://i.imgur.com/YCw47Dm.gif" width="200">
+  <img src="https://c.tenor.com/YjZhyYREI9EAAAAC/tenor.gif" width="200">
   <br>
   <em>Arigatou gozaimasu!</em>
 </p>
