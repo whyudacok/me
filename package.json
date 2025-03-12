@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Scraper untuk mengambil data dari Kuramanime",
   "main": "server.js",
-  "type": "module",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
