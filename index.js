@@ -1,61 +1,40 @@
 /**
  * CuymangaAPI
  *
- * Version: 1.1.0 (Node.js)
- * Original Author: whyudacok
- * Converter: v0
+ * Version: 1.1.0
+ * Author: whyudacok (Node.js port by v0)
  * License: MIT
- * Website: https://whyuck.my.id
- *
- * Copyright (c) 2025 whyudacok
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * 
+ * A manga scraper API for komikindo2.com
  */
 
 import express from 'express';
 import axios from 'axios';
 import cheerio from 'cheerio';
 import { rateLimit } from 'express-rate-limit';
-import { fileURLToPath } from 'url';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs/promises';
+import { existsSync } from 'fs';
+import { tmpdir } from 'os';
 
 // Configuration
-const BASE_URL = 'https://komikindo2.com'; // keep monitoring this
+const BASE_URL = 'https://komikindo2.com';
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:118.0) Gecko/20100101 Firefox/118.0';
-const RATE_LIMIT = 60; // Request limit per minute
-const RATE_LIMIT_WINDOW = 60 * 1000; // Time window in milliseconds
+const RATE_LIMIT = 60; // Requests per minute
+const RATE_LIMIT_WINDOW = 60 * 1000; // Window in milliseconds
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(express.json());
-
-// CORS middleware
+// Enable CORS
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('X-Content-Type-Options', 'nosniff');
-  res.header('Content-Type', 'application/json; charset=utf-8');
   next();
 });
 
-// Rate limiting middleware
+// Apply rate limiting
 const limiter = rateLimit({
   windowMs: RATE_LIMIT_WINDOW,
   max: RATE_LIMIT,
@@ -71,10 +50,9 @@ const limiter = rateLimit({
 app.use(limiter);
 
 /**
- * Function to fetch HTML using axios
- *
- * @param {string} url URL to fetch
- * @returns {Promise<string>} HTML content
+ * Fetch HTML content from URL
+ * @param {string} url - URL to fetch
+ * @returns {Promise<string>} - HTML content
  */
 async function fetchHTML(url) {
   try {
@@ -86,15 +64,14 @@ async function fetchHTML(url) {
     });
     return response.data;
   } catch (error) {
-    throw new Error(`Error fetching HTML: ${error.message}`);
+    throw new Error(`Error fetching URL: ${error.message}`);
   }
 }
 
 /**
- * Function to convert URL to path
- *
- * @param {string} url Full URL
- * @returns {string} Path from URL
+ * Get path from URL
+ * @param {string} url - Full URL
+ * @returns {string} - Path from URL
  */
 function getPathFromUrl(url) {
   if (!url) return '';
@@ -105,10 +82,9 @@ function getPathFromUrl(url) {
 }
 
 /**
- * Function to clean text
- *
- * @param {string} text Text to clean
- * @returns {string} Cleaned text
+ * Clean text by removing extra whitespace
+ * @param {string} text - Text to clean
+ * @returns {string} - Cleaned text
  */
 function cleanText(text) {
   if (!text) return '';
@@ -116,10 +92,9 @@ function cleanText(text) {
 }
 
 /**
- * Get latest comics
- *
- * @param {number} page Page number
- * @returns {Promise<object>} Latest comics data
+ * Get latest manga
+ * @param {number} page - Page number
+ * @returns {Promise<object>} - Latest manga data
  */
 async function getLatestKomik(page = 1) {
   const url = `${BASE_URL}/komik-terbaru/page/${page}`;
@@ -127,28 +102,28 @@ async function getLatestKomik(page = 1) {
   try {
     const htmlContent = await fetchHTML(url);
     const $ = cheerio.load(htmlContent);
-
+    
     const results = [];
     const komikPopuler = [];
 
     // Get animepost data
     $('.animepost').each((i, el) => {
-      const title = $(el).find('.tt h4').text().trim() || 'No title';
+      const title = $(el).find('.tt h4').text().trim() || 'Tidak ada judul';
       const link = getPathFromUrl($(el).find('a[rel="bookmark"]').attr('href') || '');
       const image = $(el).find('img[itemprop="image"]').attr('src') || '';
-      const typeClass = $(el).find('.typeflag').attr('class') || 'No type';
+      const typeClass = $(el).find('.typeflag').attr('class') || 'Tidak ada tipe';
       const type = typeClass.split(' ').pop();
-      const color = $(el).find('.warnalabel').text().trim() || 'Black';
+      const color = $(el).find('.warnalabel').text().trim() || 'Hitam';
 
       const chapter = [];
       $(el).find('.lsch').each((j, chEl) => {
-        const chTitle = $(chEl).find('a').text().replace('Ch.', 'Chapter').trim() || 'Chapter without title';
+        const chTitle = $(chEl).find('a').text().replace('Ch.', 'Chapter').trim() || 'Chapter tanpa judul';
         const chLink = getPathFromUrl($(chEl).find('a').attr('href') || '');
-        const chDate = $(chEl).find('.datech').text().trim() || 'No date';
+        const chDate = $(chEl).find('.datech').text().trim() || 'Tidak ada tanggal';
         chapter.push({
           judul: chTitle,
           link: chLink,
-          tanggal_rilis: chDate,
+          tanggal_rilis: chDate
         });
       });
 
@@ -158,19 +133,20 @@ async function getLatestKomik(page = 1) {
         gambar: image,
         tipe: type,
         warna: color,
-        chapter: chapter,
+        chapter: chapter
       });
     });
 
-    // Get popular comics
+    // Get popular manga
     $('.serieslist.pop li').each((i, el) => {
-      const rank = $(el).find('.ctr').text().trim() || 'No rank';
-      const title = $(el).find('h4 a').text().trim() || 'No title';
+      const rank = $(el).find('.ctr').text().trim() || 'Tidak ada peringkat';
+      const title = $(el).find('h4 a').text().trim() || 'Tidak ada judul';
       const link = getPathFromUrl($(el).find('h4 a').attr('href') || '');
       const image = $(el).find('.imgseries img').attr('src') || '';
-      const author = $(el).find('.author').text().trim() || 'Unknown author';
-      const ratingText = $(el).find('.loveviews').text().trim() || 'No rating';
-      const rating = ratingText.split(' ').pop();
+      const author = $(el).find('.author').text().trim() || 'Penulis tidak diketahui';
+      
+      const loveviewsText = $(el).find('.loveviews').text().trim() || 'Tidak ada rating';
+      const rating = loveviewsText.split(' ').pop();
 
       komikPopuler.push({
         peringkat: rank,
@@ -178,7 +154,7 @@ async function getLatestKomik(page = 1) {
         link: link,
         penulis: author,
         rating: rating,
-        gambar: image,
+        gambar: image
       });
     });
 
@@ -191,7 +167,7 @@ async function getLatestKomik(page = 1) {
     return {
       total_halaman: totalPages,
       komik: results,
-      komik_populer: komikPopuler,
+      komik_populer: komikPopuler
     };
   } catch (error) {
     throw error;
@@ -199,10 +175,9 @@ async function getLatestKomik(page = 1) {
 }
 
 /**
- * Get comic details
- *
- * @param {string} komikId Comic ID
- * @returns {Promise<object>} Comic details
+ * Get manga details
+ * @param {string} komikId - Manga ID
+ * @returns {Promise<object>} - Manga details
  */
 async function getKomikDetail(komikId) {
   const url = `${BASE_URL}/komik/${komikId}`;
@@ -211,8 +186,8 @@ async function getKomikDetail(komikId) {
     const htmlContent = await fetchHTML(url);
     const $ = cheerio.load(htmlContent);
 
-    const title = $('h1.entry-title').text().trim() || 'No title';
-    const description = cleanText($('.entry-content.entry-content-single[itemprop="description"] p').text() || 'No description');
+    const title = $('.entry-title').text().trim() || 'Tidak ada judul';
+    const description = cleanText($('.entry-content.entry-content-single[itemprop="description"] p').text() || 'Tidak ada desk');
 
     const detail = {
       judul_alternatif: null,
@@ -225,7 +200,7 @@ async function getKomikDetail(komikId) {
 
     $('.spe span').each((i, el) => {
       const key = $(el).find('b').text().trim().replace(':', '');
-      const value = cleanText($(el).text().replace(`${key}:`, ''));
+      let value = $(el).text().replace(`${key}:`, '').trim();
       
       switch (key.toLowerCase()) {
         case 'judul alternatif':
@@ -250,14 +225,15 @@ async function getKomikDetail(komikId) {
     });
 
     const image = $('.thumb img').attr('src') || '';
-    const rating = $('.rtg i[itemprop="ratingValue"]').text().trim() || 'No rating';
-    const votes = $('.votescount').text().trim() || 'No votes';
+    const rating = $('.rtg i[itemprop="ratingValue"]').text().trim() || 'Tidak ada rating';
+    const votes = $('.votescount').text().trim() || 'Tidak ada votes';
 
     const chapters = [];
     $('.listeps ul li').each((i, el) => {
-      const chapterTitle = $(el).find('.lchx a').text().trim() || 'No title';
+      const chapterTitle = $(el).find('.lchx a').text().trim() || 'Tidak ada judul';
       const chapterLink = getPathFromUrl($(el).find('.lchx a').attr('href') || '');
-      const releaseTime = $(el).find('.dt a').text().trim() || 'No release time';
+      const releaseTime = $(el).find('.dt a').text().trim() || 'Tidak ada waktu rilis';
+      
       chapters.push({
         judul_chapter: chapterTitle,
         link_chapter: chapterLink,
@@ -268,13 +244,15 @@ async function getKomikDetail(komikId) {
     let chapterAwal = null;
     let chapterTerbaru = null;
     const epsbrDivs = $('.epsbr');
+    
     if (epsbrDivs.length >= 2) {
       chapterAwal = {
-        judul_chapter: $(epsbrDivs[0]).find('a').text().trim() || 'No title',
+        judul_chapter: $(epsbrDivs[0]).find('a').text().trim() || 'Tidak ada judul',
         link_chapter: getPathFromUrl($(epsbrDivs[0]).find('a').attr('href') || '')
       };
+      
       chapterTerbaru = {
-        judul_chapter: $(epsbrDivs[1]).find('a').text().trim() || 'No title',
+        judul_chapter: $(epsbrDivs[1]).find('a').text().trim() || 'Tidak ada judul',
         link_chapter: getPathFromUrl($(epsbrDivs[1]).find('a').attr('href') || '')
       };
     }
@@ -282,10 +260,10 @@ async function getKomikDetail(komikId) {
     const similarManga = [];
     $('.serieslist ul li').each((i, el) => {
       similarManga.push({
-        judul: $(el).find('.leftseries h4 a').text().trim() || 'No title',
+        judul: $(el).find('.leftseries h4 a').text().trim() || 'Tidak ada judul',
         link: getPathFromUrl($(el).find('.leftseries h4 a').attr('href') || ''),
         gambar: $(el).find('.imgseries a img').attr('src') || '',
-        desk: $(el).find('.excerptmirip').text().trim() || 'No description'
+        desk: $(el).find('.excerptmirip').text().trim() || 'Tidak ada desk'
       });
     });
 
@@ -294,11 +272,12 @@ async function getKomikDetail(komikId) {
       spoilerImage.push($(el).attr('src') || '');
     });
 
-    const id = $('article').attr('id')?.replace('post-', '') || 'No ID';
+    const id = $('article').attr('id')?.replace('post-', '') || 'Tidak ada ID';
+    
     const genre = [];
     $('.genre-info a').each((i, el) => {
       genre.push({
-        nama: $(el).text().trim() || 'No genre',
+        nama: $(el).text().trim() || 'Tidak ada genre',
         link: getPathFromUrl($(el).attr('href') || '').replace('/genres/', '')
       });
     });
@@ -324,10 +303,9 @@ async function getKomikDetail(komikId) {
 }
 
 /**
- * Get comic chapter data
- *
- * @param {string} chapterId Chapter ID
- * @returns {Promise<object>} Chapter data
+ * Get chapter data
+ * @param {string} chapterId - Chapter ID
+ * @returns {Promise<object>} - Chapter data
  */
 async function getKomikChapter(chapterId) {
   const url = `${BASE_URL}/${chapterId}`;
@@ -337,8 +315,9 @@ async function getKomikChapter(chapterId) {
     const $ = cheerio.load(htmlContent);
 
     const results = {};
-    results.id = $('article').attr('id')?.replace('post-', '') || 'No ID';
-    results.judul = $('.entry-title').text().trim() || 'No title';
+    results.id = $('article').attr('id')?.replace('post-', '') || 'Tidak ada ID';
+    results.judul = $('.entry-title').text().trim() || 'Tidak ada judul';
+    
     results.navigasi = {
       sebelumnya: getPathFromUrl($('a[rel="prev"]').attr('href') || ''),
       selanjutnya: getPathFromUrl($('a[rel="next"]').attr('href') || '')
@@ -363,12 +342,12 @@ async function getKomikChapter(chapterId) {
     const thumbnail = $('div.thumb img');
     results.thumbnail = thumbnail.length ? {
       url: thumbnail.attr('src'),
-      judul: thumbnail.attr('title') || 'No title'
+      judul: thumbnail.attr('title') || 'Tidak ada judul'
     } : null;
 
     results.info_komik = {
-      judul: $('.infox h2').text().trim() || 'No title',
-      desk: $('.shortcsc').text().trim() || 'No description',
+      judul: $('.infox h2').text().trim() || 'Tidak ada judul',
+      desk: $('.shortcsc').text().trim() || 'Tidak ada desk',
       chapter: []
     };
 
@@ -386,10 +365,9 @@ async function getKomikChapter(chapterId) {
 }
 
 /**
- * Get comic library
- *
- * @param {object} params Search parameters
- * @returns {Promise<object>} Comic library data
+ * Get manga library
+ * @param {object} params - Search parameters
+ * @returns {Promise<object>} - Manga library data
  */
 async function getKomikLibrary(params) {
   let url = '';
@@ -420,15 +398,19 @@ async function getKomikLibrary(params) {
     const results = [];
     const komikPopuler = [];
 
-    // Get comics by genre or category
+    // Get manga by genre or category
     $('.animepost').each((i, el) => {
-      const title = $(el).find('.tt h4').text().trim() || 'No title';
+      const title = $(el).find('.tt h4').text().trim() || 'Tidak ada judul';
       const rating = $(el).find('.rating i').text().trim() || '0';
       const link = $(el).find('a[rel="bookmark"]').attr('href') || '';
       const image = $(el).find('img[itemprop="image"]').attr('src') || '';
-      const typeClass = $(el).find('.typeflag').attr('class') || '';
-      const type = typeClass ? typeClass.split(' ').pop() : 'No type';
-      const color = $(el).find('.warnalabel').text().trim() || 'Black';
+      
+      const typeElement = $(el).find('.typeflag');
+      const type = typeElement.length 
+        ? typeElement.attr('class')?.split(' ').pop() || 'Tidak ada tipe'
+        : 'Tidak ada tipe';
+        
+      const color = $(el).find('.warnalabel').text().trim() || 'Hitam';
 
       results.push({
         judul: title,
@@ -436,19 +418,22 @@ async function getKomikLibrary(params) {
         link: getPathFromUrl(link),
         gambar: image,
         tipe: type,
-        warna: color,
+        warna: color
       });
     });
 
-    // Get popular comics
+    // Get popular manga
     $('.serieslist.pop li').each((i, el) => {
-      const rank = $(el).find('.ctr').text().trim() || 'No rank';
-      const title = $(el).find('h4 a').text().trim() || 'No title';
+      const rank = $(el).find('.ctr').text().trim() || 'Tidak ada peringkat';
+      const title = $(el).find('h4 a').text().trim() || 'Tidak ada judul';
       const link = $(el).find('h4 a').attr('href') || '';
       const image = $(el).find('.imgseries img').attr('src') || '';
-      const author = $(el).find('.author').text().trim() || 'Unknown author';
-      const ratingText = $(el).find('.loveviews').text().trim() || 'No rating';
-      const rating = ratingText.split(' ').pop();
+      const author = $(el).find('.author').text().trim() || 'Penulis tidak diketahui';
+      
+      const loveviewsElement = $(el).find('.loveviews');
+      const rating = loveviewsElement.length 
+        ? loveviewsElement.text().trim().split(' ').pop() || 'Tidak ada rating'
+        : 'Tidak ada rating';
 
       komikPopuler.push({
         judul: title,
@@ -456,47 +441,119 @@ async function getKomikLibrary(params) {
         peringkat: rank,
         penulis: author,
         rating: rating,
-        gambar: image,
+        gambar: image
       });
     });
 
     // Determine total pages for pagination
     const pagination = $('.pagination a.page-numbers').last().prev();
-    const totalPages = pagination.length ? parseInt(pagination.text().trim()) : 1;
+    const totalPages = pagination.length 
+      ? parseInt(pagination.text().trim()) || 1
+      : 1;
 
     return {
       total_halaman: totalPages,
       komik: results,
-      komik_populer: komikPopuler,
+      komik_populer: komikPopuler
     };
   } catch (error) {
     throw error;
   }
 }
 
-/**
- * Display JSON response
- *
- * @param {object} res Express response object
- * @param {object} data Data to display
- * @param {number} statusCode HTTP status code
- */
-function displayPrettyJson(res, data, statusCode = 200) {
-  res.status(statusCode).json(data);
-}
-
 // API routes
-app.get('/', async (req, res) => {
+app.get('/', (req, res) => {
+  try {
+    // If no parameters match, display API documentation
+    const documentation = {
+      name: 'CuymangaAPI',
+      version: '1.1.0',
+      description: 'CuymangaAPI adalah REST API buat web scraping yang ngambil data komik dari Komikindo2.com pakai Cheerio.',
+      author: 'whyudacok (Node.js port by v0)',
+      Website: 'https://whyuck.my.id',
+      rate_limit: `${RATE_LIMIT} request per ${RATE_LIMIT_WINDOW/1000} detik`,
+      endpoint: [
+        {
+          path: '?latest=1&page=1',
+          desk: 'Mendapatkan daftar komik terbaru',
+          parameter: {
+            page: 'Nomor halaman (opsional, default: 1)'
+          }
+        },
+        {
+          path: '?komik=slug-komik',
+          desk: 'Mendapatkan detail komik',
+          parameter: {
+            komik: 'ID atau slug komik'
+          }
+        },
+        {
+          path: '?chapter=slug-komik-chapter-1',
+          desk: 'Mendapatkan data chapter komik',
+          parameter: {
+            chapter: 'ID atau slug chapter'
+          }
+        },
+        {
+          path: '?genre=action&page=1',
+          desk: 'Mendapatkan daftar komik berdasarkan genre',
+          parameter: {
+            genre: 'Nama genre',
+            page: 'Nomor halaman (Harus, default: 1)'
+          }
+        },
+        {
+          path: '?s=naruto&page=1',
+          desk: 'Mencari komik',
+          parameter: {
+            s: 'Kata kunci pencarian',
+            page: 'Nomor halaman (Harus, default: 1)'
+          }
+        },
+        {
+          path: '?daftar=1',
+          desk: 'Mendapatkan daftar semua komik',
+          parameter: {
+            daftar: 'Nomor halaman (Harus, default: 1)'
+          }
+        },
+        {
+          path: '?type=manga&page=1',
+          desk: 'Mendapatkan daftar komik berdasarkan tipe',
+          parameter: {
+            type: 'Tipe komik (manga, manhwa, manhua)',
+            page: 'Nomor halaman (Harus, default: 1)'
+          }
+        }
+      ]
+    };
+    
+    return res.json({
+      status: true,
+      message: 'Docs CuymangaAPI',
+      data: documentation
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      data: null,
+      message: `Terjadi kesalahan: ${error.message}`
+    });
+  }
+});
+
+// Route handler for all API endpoints
+app.get('/api', async (req, res) => {
   try {
     // Validate input
     const allowedParams = ['latest', 'komik', 'chapter', 'library', 'genre', 's', 'daftar', 'type', 'page'];
     for (const key in req.query) {
       if (!allowedParams.includes(key)) {
-        return displayPrettyJson(res, {
+        return res.status(400).json({
           status: false,
           message: `Invalid parameter: ${key}`,
           data: null
-        }, 400);
+        });
       }
     }
 
@@ -504,7 +561,7 @@ app.get('/', async (req, res) => {
     if (req.query.latest !== undefined) {
       const page = req.query.page ? parseInt(req.query.page) : 1;
       const data = await getLatestKomik(page);
-      displayPrettyJson(res, {
+      return res.json({
         status: true,
         message: 'OK',
         data: data
@@ -512,7 +569,7 @@ app.get('/', async (req, res) => {
     } else if (req.query.komik) {
       const komikId = req.query.komik;
       const data = await getKomikDetail(komikId);
-      displayPrettyJson(res, {
+      return res.json({
         status: true,
         message: 'OK',
         data: data
@@ -520,103 +577,43 @@ app.get('/', async (req, res) => {
     } else if (req.query.chapter) {
       const chapterId = req.query.chapter;
       const data = await getKomikChapter(chapterId);
-      displayPrettyJson(res, {
+      return res.json({
         status: true,
         message: 'OK',
         data: data
       });
     } else if (req.query.library !== undefined || req.query.genre || req.query.s || req.query.daftar || req.query.type) {
       const data = await getKomikLibrary(req.query);
-      displayPrettyJson(res, {
+      return res.json({
         status: true,
         message: 'OK',
         data: data
       });
     } else {
-      // If no matching parameters, display API documentation
-      const documentation = {
-        name: 'CuymangaAPI',
-        version: '1.1.0 (Node.js)',
-        description: 'CuymangaAPI is a REST API for web scraping that retrieves comic data from Komikindo2.com using Cheerio.',
-        author: 'whyudacok (Original), v0 (Node.js Conversion)',
-        Website: 'https://whyuck.my.id',
-        rate_limit: `${RATE_LIMIT} requests per ${RATE_LIMIT_WINDOW/1000} seconds`,
-        endpoint: [
-          {
-            path: '?latest=1&page=1',
-            desk: 'Get latest comics list',
-            parameter: {
-              page: 'Page number (optional, default: 1)'
-            }
-          },
-          {
-            path: '?komik=slug-komik',
-            desk: 'Get comic details',
-            parameter: {
-              komik: 'Comic ID or slug'
-            }
-          },
-          {
-            path: '?chapter=slug-komik-chapter-1',
-            desk: 'Get comic chapter data',
-            parameter: {
-              chapter: 'Chapter ID or slug'
-            }
-          },
-          {
-            path: '?genre=action&page=1',
-            desk: 'Get comics by genre',
-            parameter: {
-              genre: 'Genre name',
-              page: 'Page number (required, default: 1)'
-            }
-          },
-          {
-            path: '?s=naruto&page=1',
-            desk: 'Search comics',
-            parameter: {
-              s: 'Search keyword',
-              page: 'Page number (required, default: 1)'
-            }
-          },
-          {
-            path: '?daftar=1',
-            desk: 'Get all comics list',
-            parameter: {
-              daftar: 'Page number (required, default: 1)'
-            }
-          },
-          {
-            path: '?type=manga&page=1',
-            desk: 'Get comics by type',
-            parameter: {
-              type: 'Comic type (manga, manhwa, manhua)',
-              page: 'Page number (required, default: 1)'
-            }
-          }
-        ]
-      };
-      displayPrettyJson(res, {
-        status: true,
-        message: 'CuymangaAPI Docs',
-        data: documentation
-      });
+      // Redirect to documentation if no valid parameters
+      return res.redirect('/');
     }
   } catch (error) {
-    displayPrettyJson(res, {
+    return res.status(500).json({
       status: false,
       data: null,
-      message: `An error occurred: ${error.message}`
-    }, 500);
+      message: `Terjadi kesalahan: ${error.message}`
+    });
   }
 });
 
-// For Vercel serverless deployment
-export default app;
+// Start the server
+app.listen(PORT, () => {
+  console.log(`CuymangaAPI server running on port ${PORT}`);
+  console.log(`Documentation available at http://localhost:${PORT}`);
+  console.log(`API endpoints available at http://localhost:${PORT}/api`);
+});
 
-// For local development
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(port, () => {
-    console.log(`CuymangaAPI running on port ${port}`);
-  });
-}
+// Example usage:
+// http://localhost:3000/api?latest=1&page=1
+// http://localhost:3000/api?komik=one-piece
+// http://localhost:3000/api?chapter=one-piece-chapter-1
+console.log('Try these example endpoints:');
+console.log('- Latest manga: /api?latest=1&page=1');
+console.log('- Manga details: /api?komik=one-piece');
+console.log('- Chapter data: /api?chapter=one-piece-chapter-1');
